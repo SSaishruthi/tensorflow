@@ -276,7 +276,7 @@ class Dimension(object):
     An unknown Dimension is compatible with all other Dimensions.
 
     Args:
-      other: Another Dimension, or a value accepted by as `as_dimension`.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
       True if this Dimension and `other` are compatible.
