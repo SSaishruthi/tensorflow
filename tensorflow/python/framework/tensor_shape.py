@@ -218,8 +218,8 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by as `as_dimension`.
       
     Returns:
-      Returns true if `self.value == other.value` are equal and both the 
-      values are known, otherwise None.
+      Returns true if `self.value == other.value` and both the values are known, 
+      otherwise None.
       
     """
     try:
