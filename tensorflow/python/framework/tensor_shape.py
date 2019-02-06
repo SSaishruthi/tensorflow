@@ -176,7 +176,17 @@ class Dimension(object):
   """Represents the value of one dimension in a TensorShape."""
 
   def __init__(self, value):
-    """Creates a new Dimension with the given value."""
+    """Creates a new Dimension with the given value.
+    
+    Args:
+      value: Dimension value.
+      
+    Raises:
+      ValueError: If the dimension value either ambiguous or
+        less than zero.
+        
+      TypeError: If the value cannot be converted to Dimension.
+    """
     if value is None:
       self._value = None
     elif isinstance(value, Dimension):
@@ -199,7 +209,15 @@ class Dimension(object):
     return "?" if value is None else str(value)
 
   def __eq__(self, other):
-    """Returns true if `other` has the same known value as this Dimension."""
+    """Returns true if `other` has the same known value as this Dimension, 
+       otherwise None.
+       
+    Args:
+      other: Another Dimension, or a value accepted by as `as_dimension`.
+      
+    Returns:
+      Returns true if `self.value` and `other.value` are equal, otherwise None.
+    """
     try:
       other = as_dimension(other)
     except (TypeError, ValueError):
@@ -209,7 +227,15 @@ class Dimension(object):
     return self._value == other.value
 
   def __ne__(self, other):
-    """Returns true if `other` has a different known value from `self`."""
+    """Returns true if `other` has a different known value from `self`.
+    
+    Args:
+      other: Another Dimension, or a value accepted by as `as_dimension`.
+     
+    Returns:
+      Returns True if `other.value` and `self.value` are not equal, otherwise None.
+      
+    """
     try:
       other = as_dimension(other)
     except (TypeError, ValueError):
@@ -242,12 +268,15 @@ class Dimension(object):
     An unknown Dimension is compatible with all other Dimensions.
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
       True if this Dimension and `other` are compatible.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     return (self._value is None or other.value is None or
             self._value == other.value)
 
@@ -282,7 +311,7 @@ class Dimension(object):
     ```
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
       A Dimension containing the combined information of `self` and
@@ -292,7 +321,10 @@ class Dimension(object):
       ValueError: If `self` and `other` are not compatible (see
         is_compatible_with).
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     self.assert_is_compatible_with(other)
     if self._value is None:
       return Dimension(other.value)
@@ -315,9 +347,12 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is the sum of `self` and `other`.
+      A Dimension whose value is the sum of `self` and `other`, otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return Dimension(None)
     else:
@@ -332,7 +367,14 @@ class Dimension(object):
     Returns:
       A Dimension whose value is the sum of `self` and `other`.
     """
-    return self + other
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
+    if self._value is None or other.value is None:
+      return Dimension(None)
+    else:
+      return Dimension(other.value - self._value)
 
   def __sub__(self, other):
     """Returns the subtraction of `other` from `self`.
@@ -365,9 +407,12 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is the subtraction of `self` from `other`.
+      A Dimension whose value is the subtraction of `self` from `other`, otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return Dimension(None)
     else:
@@ -389,7 +434,7 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is the product of `self` and `other`.
+      A Dimension whose value is the product of `self` and `other`, otherwise None.
     """
     try:
       other = as_dimension(other)
@@ -408,9 +453,17 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is the product of `self` and `other`.
+      A Dimension whose value is the product of `self` and `other`, otherwise None.
     """
-    return self * other
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
+
+    if self._value is None or other.value is None:
+      return Dimension(None)
+    else:
+      return Dimension(self._value * other.value)
 
   def __floordiv__(self, other):
     """Returns the quotient of `self` and `other` rounded down.
@@ -428,7 +481,7 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A `Dimension` whose value is the integer quotient of `self` and `other`.
+      A `Dimension` whose value is the integer quotient of `self` and `other`, otherwise None.
     """
     try:
       other = as_dimension(other)
@@ -446,9 +499,12 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A `Dimension` whose value is the integer quotient of `self` and `other`.
+      A `Dimension` whose value is the integer quotient of `self` and `other`, otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return Dimension(None)
     else:
@@ -486,7 +542,7 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is `self` modulo `other`.
+      A Dimension whose value is `self` modulo `other`, otherwise None.
     """
     try:
       other = as_dimension(other)
@@ -504,13 +560,16 @@ class Dimension(object):
       other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      A Dimension whose value is `other` modulo `self`.
+      A Dimension whose value is `other` modulo `self`, otherwise None.
     """
     try:
       other = as_dimension(other)
     except (TypeError, ValueError):
       return NotImplemented
-    return other % self
+    if self._value is None or other.value is None:
+      return Dimension(None)
+    else:
+      return Dimension(other.value % self._value)
 
   def __lt__(self, other):
     """Returns True if `self` is known to be less than `other`.
@@ -525,13 +584,16 @@ class Dimension(object):
     ```
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      The value of `self.value < other.value` if both are known, otherwise
-      None.
+      Returns true if both values are known and `self.value < other.value`, 
+      otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return None
     else:
@@ -550,13 +612,16 @@ class Dimension(object):
     ```
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      The value of `self.value <= other.value` if both are known, otherwise
-      None.
+      Returns true if both values are known and `self.value <= other.value`, 
+      otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return None
     else:
@@ -575,13 +640,15 @@ class Dimension(object):
     ```
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
-      The value of `self.value > other.value` if both are known, otherwise
-      None.
+      Returns True if `self.value > other.value`, otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return None
     else:
@@ -603,10 +670,12 @@ class Dimension(object):
       other: Another Dimension.
 
     Returns:
-      The value of `self.value >= other.value` if both are known, otherwise
-      None.
+      Returns True if `self.value >= other.value`, otherwise None.
     """
-    other = as_dimension(other)
+    try:
+      other = as_dimension(other)
+    except (TypeError, ValueError):
+      return NotImplemented
     if self._value is None or other.value is None:
       return None
     else:
@@ -841,7 +910,10 @@ class TensorShapeV1(object):
     Raises:
       ValueError: If `self` and `other` are not compatible.
     """
-    other = as_shape(other)
+    try:
+      other = as_shape(other)
+    except TypeError:
+      return NotImplemented
     if self._dims is None:
       return other
     else:
@@ -867,11 +939,14 @@ class TensorShapeV1(object):
 
     Returns:
       A `TensorShape` whose dimensions are the concatenation of the
-      dimensions in `self` and `other`.
+      dimensions in `self` and `other`, otherwise None.
     """
     # TODO(mrry): Handle the case where we concatenate a known shape with a
     # completely unknown shape, so that we can use the partial information.
-    other = as_shape(other)
+    try:
+      other = as_shape(other)
+    except TypeError:
+      return NotImplemented
     if self._dims is None or other.dims is None:
       return unknown_shape()
     else:
@@ -887,7 +962,10 @@ class TensorShapeV1(object):
       ValueError: If `self` and `other` do not represent shapes with the
         same rank.
     """
-    other = as_shape(other)
+    try:
+      other = as_shape(other)
+    except TypeError:
+      return NotImplemented
     if self.rank is not None and other.rank is not None:
       if self.rank != other.rank:
         raise ValueError("Shapes %s and %s must have the same rank" % (self,
@@ -1001,7 +1079,10 @@ class TensorShapeV1(object):
       True iff `self` is compatible with `other`.
 
     """
-    other = as_shape(other)
+    try:
+      other = as_shape(other)
+    except TypeError:
+      return NotImplemented
     if self._dims is not None and other.dims is not None:
       if self.rank != other.rank:
         return False
@@ -1094,15 +1175,31 @@ class TensorShapeV1(object):
       ])
 
   def __eq__(self, other):
-    """Returns True if `self` is equivalent to `other`."""
+    """Returns True if `self` is equivalent to `other`.
+    
+    Args:
+      other: Another `TensorShape`.
+    
+    Raises:
+      ValueError: If either `self.rank` or `other.rank` is None.
+    """
     try:
       other = as_shape(other)
     except TypeError:
       return NotImplemented
+    if self.rank is None or other.rank is None:
+      raise ValueError("The inequality of unknown TensorShapes is undefined.")
     return self._dims == other.dims
 
   def __ne__(self, other):
-    """Returns True if `self` is known to be different from `other`."""
+    """Returns True if `self` is known to be different from `other`.
+    
+    Args:
+      other: Another `TensorShape`.
+    
+    Raises:
+      ValueError: If either `self.rank` or `other.rank` is None.
+    """
     try:
       other = as_shape(other)
     except TypeError:
@@ -1117,6 +1214,11 @@ class TensorShapeV1(object):
     return TensorShape, (self._dims,)
 
   def __concat__(self, other):
+    """Returns concatenation of the dimension in `self` and `other`.
+    
+    Args:
+      other: Another `TensorShape` 
+    """
     return self.concatenate(other)
 
 
