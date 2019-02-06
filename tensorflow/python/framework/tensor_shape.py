@@ -215,7 +215,7 @@ class Dimension(object):
     """Returns true if `other` has the same known value as this Dimension.
     
     Args:
-      other: Another Dimension, or a value accepted by as `as_dimension`.
+      other: Another Dimension, or a value accepted by `as_dimension`.
       
     Returns:
       Returns true if `self.value == other.value` and both the values are known, 
@@ -234,7 +234,7 @@ class Dimension(object):
     """Returns true if `other` has a different known value from `self`.
     
     Args:
-      other: Another Dimension, or a value accepted by as `as_dimension`.
+      other: Another Dimension, or a value accepted by `as_dimension`.
      
     Returns:
       Returns True if `other.value != self.value` and both the values are known, 
@@ -316,7 +316,7 @@ class Dimension(object):
     ```
 
     Args:
-      other: Another Dimension.
+      other: Another Dimension, or a value accepted by `as_dimension`.
 
     Returns:
       A Dimension containing the combined information of `self` and
